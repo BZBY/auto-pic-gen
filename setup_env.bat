@@ -1,4 +1,5 @@
 @echo off
+chcp 65001 >nul
 echo 视频人物训练集提取系统 - 环境设置
 echo ================================
 
@@ -27,20 +28,25 @@ if errorlevel 1 (
 
 echo.
 echo [2/4] 设置Python后端环境...
-cd /d "%~dp0backend"
 
-if not exist ".venv" (
-    echo 创建Python虚拟环境...
-    uv venv
+rem 设置共享虚拟环境路径
+set SHARED_VENV_DIR=E:\Git_my\.venv_shared
+set PROJECT_DIR=%~dp0
+
+if not exist "%SHARED_VENV_DIR%" (
+    echo 创建共享Python虚拟环境...
+    uv venv "%SHARED_VENV_DIR%"
     if errorlevel 1 (
-        echo 错误: 创建虚拟环境失败
+        echo 错误: 创建共享虚拟环境失败
         pause
         exit /b 1
     )
 )
 
-echo 激活虚拟环境并安装Python依赖...
-call .venv\Scripts\activate.bat
+echo 激活共享虚拟环境并安装Python依赖...
+call "%SHARED_VENV_DIR%\Scripts\activate.bat"
+
+cd /d "%PROJECT_DIR%backend"
 uv pip install -r requirements.txt
 if errorlevel 1 (
     echo 错误: Python依赖安装失败

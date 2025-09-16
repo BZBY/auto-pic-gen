@@ -1,39 +1,11 @@
 @echo off
+chcp 65001 >nul
 echo 启动视频人物训练集提取系统 - 后端服务
 echo ========================================
 
-cd /d "%~dp0backend"
+set PROJECT_DIR=%~dp0
 
-echo 检查UV环境...
-uv --version >nul 2>&1
-if errorlevel 1 (
-    echo 错误: 未找到uv，请先安装uv
-    echo 安装命令: pip install uv
-    pause
-    exit /b 1
-)
-
-echo.
-echo 检查Python虚拟环境...
-if not exist ".venv" (
-    echo 创建虚拟环境...
-    uv venv
-    if errorlevel 1 (
-        echo 错误: 创建虚拟环境失败
-        pause
-        exit /b 1
-    )
-)
-
-echo.
-echo 激活虚拟环境并安装依赖...
-call .venv\Scripts\activate.bat
-uv pip install -r requirements.txt
-if errorlevel 1 (
-    echo 错误: 依赖包安装失败
-    pause
-    exit /b 1
-)
+cd /d "%PROJECT_DIR%backend"
 
 echo.
 echo 启动后端服务...

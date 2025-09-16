@@ -9,7 +9,7 @@ from datetime import datetime
 from PIL import Image
 
 from ..models.video_models import (
-    VideoProcessRequest, ProcessingStatus, ProcessingResult, 
+    VideoProcessRequest, ProcessingStatus, ProcessingStatusEnum, ProcessingResult, 
     ExtractedFrame, VideoInfo, ProcessingConfig
 )
 from ..models.tag_models import TagMatchRequest, ImageTagResult
@@ -46,7 +46,7 @@ class VideoProcessingService:
         # 初始化任务状态
         status = ProcessingStatus(
             task_id=task_id,
-            status="pending",
+            status=ProcessingStatusEnum.PENDING,
             progress=0.0,
             current_step="初始化任务",
             total_steps=5,
@@ -66,7 +66,7 @@ class VideoProcessingService:
         status = self.processing_tasks[task_id]
         
         try:
-            status.status = "processing"
+            status.status = ProcessingStatusEnum.PROCESSING
             
             # 步骤1: 提取视频帧
             status.current_step = "提取视频帧"
@@ -103,11 +103,12 @@ class VideoProcessingService:
             output_path = Path(request.output_directory)
             
             for frame in frames:
-                img_path = output_path / frame.filename
+                # 使用image_path而不是filename
+                img_path = Path(frame.image_path)
                 if img_path.exists():
                     image = Image.open(img_path)
                     frame_images.append(image)
-                    frame_filenames.append(frame.filename)
+                    frame_filenames.append(img_path.name)  # 只使用文件名部分
             
             # 批量标注
             frame_tag_results = self.wd_tagger.batch_tag_images(
@@ -184,7 +185,7 @@ class VideoProcessingService:
             )
             
             # 完成处理
-            status.status = "completed"
+            status.status = ProcessingStatusEnum.COMPLETED
             status.progress = 1.0
             status.current_step = "处理完成"
             status.completed_steps = 5
@@ -213,7 +214,7 @@ class VideoProcessingService:
             
         except Exception as e:
             logger.error(f"任务 {task_id} 处理失败: {e}")
-            status.status = "failed"
+            status.status = ProcessingStatusEnum.FAILED
             status.error_message = str(e)
             status.end_time = datetime.now()
     
@@ -270,8 +271,8 @@ class VideoProcessingService:
         """取消任务"""
         if task_id in self.processing_tasks:
             status = self.processing_tasks[task_id]
-            if status.status in ["pending", "processing"]:
-                status.status = "cancelled"
+            if status.status in [ProcessingStatusEnum.PENDING, ProcessingStatusEnum.PROCESSING]:
+                status.status = ProcessingStatusEnum.CANCELLED
                 status.end_time = datetime.now()
                 return True
         return False

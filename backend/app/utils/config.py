@@ -22,8 +22,8 @@ class Config:
     
     # 视频处理配置
     MAX_FRAMES = int(os.getenv("MAX_FRAMES", "200"))
-    SCENE_CHANGE_THRESHOLD = float(os.getenv("SCENE_CHANGE_THRESHOLD", "0.3"))
-    QUALITY_THRESHOLD = float(os.getenv("QUALITY_THRESHOLD", "0.6"))
+    SCENE_CHANGE_THRESHOLD = float(os.getenv("SCENE_CHANGE_THRESHOLD", "0.15"))  # 降低阈值，要求更显著的变化
+    QUALITY_THRESHOLD = float(os.getenv("QUALITY_THRESHOLD", "0.5"))  # 稍微降低质量要求
     
     # 标签配置
     TAG_THRESHOLD = float(os.getenv("TAG_THRESHOLD", "0.35"))

@@ -29,7 +29,12 @@ app = FastAPI(
 # 配置CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],  # React开发服务器
+    allow_origins=[
+        "http://localhost:3000",    # React开发服务器
+        "http://127.0.0.1:3000",   # React开发服务器
+        "http://localhost:9000",    # Quasar开发服务器
+        "http://127.0.0.1:9000",   # Quasar开发服务器
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

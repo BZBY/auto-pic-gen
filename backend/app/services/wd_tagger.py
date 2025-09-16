@@ -107,7 +107,7 @@ class WDTaggerService:
                 # 角色标签
                 if tag_name in self.character_tags and prob > character_threshold:
                     tag_result = TagResult(
-                        name=tag_name,
+                        tag=tag_name,  # 修正字段名
                         confidence=float(prob),
                         category=TagCategory.CHARACTER
                     )
@@ -117,19 +117,26 @@ class WDTaggerService:
                 # 一般标签
                 elif tag_name in self.general_tags and prob > general_threshold:
                     tag_result = TagResult(
-                        name=tag_name,
+                        tag=tag_name,  # 修正字段名
                         confidence=float(prob),
                         category=TagCategory.GENERAL
                     )
                     all_tags.append(tag_result)
                     general_tags.append(tag_result)
             
+            # 转换为字典格式
+            character_dict = {tag.tag: tag.confidence for tag in character_tags}
+            general_dict = {tag.tag: tag.confidence for tag in general_tags}
+            
             return ImageTagResult(
-                filename="",  # 将在调用时设置
-                tags=all_tags,
-                ratings=ratings,
-                character_tags=character_tags,
-                general_tags=general_tags
+                image_path="",  # 将在调用时设置
+                character_tags=character_dict,
+                general_tags=general_dict,
+                rating_tags=ratings,
+                copyright_tags={},  # 暂时为空
+                artist_tags={},     # 暂时为空
+                confidence_score=sum(tag.confidence for tag in all_tags) / len(all_tags) if all_tags else 0.0,
+                processing_time=0.0  # 将在调用时设置
             )
             
         except Exception as e:
@@ -182,7 +189,7 @@ class WDTaggerService:
                         # 角色标签
                         if tag_name in self.character_tags and prob > character_threshold:
                             tag_result = TagResult(
-                                name=tag_name,
+                                tag=tag_name,  # 修正字段名
                                 confidence=float(prob),
                                 category=TagCategory.CHARACTER
                             )
@@ -192,19 +199,26 @@ class WDTaggerService:
                         # 一般标签
                         elif tag_name in self.general_tags and prob > general_threshold:
                             tag_result = TagResult(
-                                name=tag_name,
+                                tag=tag_name,  # 修正字段名
                                 confidence=float(prob),
                                 category=TagCategory.GENERAL
                             )
                             all_tags.append(tag_result)
                             general_tags.append(tag_result)
                     
+                    # 转换为字典格式
+                    character_dict = {tag.tag: tag.confidence for tag in character_tags}
+                    general_dict = {tag.tag: tag.confidence for tag in general_tags}
+                    
                     result = ImageTagResult(
-                        filename=filename,
-                        tags=all_tags,
-                        ratings=ratings,
-                        character_tags=character_tags,
-                        general_tags=general_tags
+                        image_path=filename,
+                        character_tags=character_dict,
+                        general_tags=general_dict,
+                        rating_tags=ratings,
+                        copyright_tags={},  # 暂时为空
+                        artist_tags={},     # 暂时为空
+                        confidence_score=sum(tag.confidence for tag in all_tags) / len(all_tags) if all_tags else 0.0,
+                        processing_time=0.0  # 将在处理完成后设置
                     )
                     results.append(result)
                     
